@@ -6,7 +6,7 @@ type Props = {
 
 const Text: FunctionComponent<Props> = ({ children }: Props) => {
     return (
-        <div style={{ fontWeight: 'normal' }}>
+        <div style={{ fontWeight: 'normal', whiteSpace: 'pre-wrap' }}>
             {children}
         </div>
     )
@@ -14,7 +14,7 @@ const Text: FunctionComponent<Props> = ({ children }: Props) => {
 
 const BoldText: FunctionComponent<Props> = ({ children }: Props) => {
     return (
-        <div style={{ fontWeight: 'bold' }}>
+        <div style={{ fontWeight: 'bold', whiteSpace: 'pre-wrap' }}>
             {children}
         </div>
     )
