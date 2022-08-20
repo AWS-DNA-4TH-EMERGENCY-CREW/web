@@ -10459,6 +10459,11 @@ react-generate-context@1.0.1:
   resolved "https://registry.yarnpkg.com/react-generate-context/-/react-generate-context-1.0.1.tgz#4454cfecb0b3f27502185dfa5c63d5f5ec14b936"
   integrity sha512-rOFGh3KgC2Ot66DmVCcT1p8lVJCmmCjzGE5WK/KsyDFi43wpIbW1PYcr04cQ3mbF4LaIkY6SpK7k1DOgwtpUXA==
 
+react-hook-geolocation@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/react-hook-geolocation/-/react-hook-geolocation-1.1.0.tgz#922015f3cafd0ea4a7a209052a942a17cf50efb1"
+  integrity sha512-YlqFIOtozFPgcTDPDhRITIMSgIr1Op3070SCmKOTM9LD0mpZLsw7D+miwve9vD+B92Ht7f43Hn+hUMS3tHifAg==
+
 react-is@^16.13.1, react-is@^16.7.0:
   version "16.13.1"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.13.1.tgz#789729a4dc36de2999dc156dd6c1d9c18cea56a4"
