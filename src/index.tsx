@@ -1,15 +1,22 @@
 import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App'
+import { createRoot } from 'react-dom/client'
+import { Amplify } from 'aws-amplify'
+import { AmplifyProvider } from '@aws-amplify/ui-react'
+import config from './aws-exports'
 import reportWebVitals from './reportWebVitals'
+import '@aws-amplify/ui-react/styles.css'
+import './index.css'
 
-const root = ReactDOM.createRoot(
-    document.getElementById('root') as HTMLElement
-)
+
+Amplify.configure(config)
+const container = document.getElementById('root') as HTMLElement
+const root = createRoot(container)
+
 root.render(
     <React.StrictMode>
-        <App />
-    </React.StrictMode>
+        <AmplifyProvider>
+        </AmplifyProvider>
+    </React.StrictMode>,
 )
 
 // If you want to start measuring performance in your app, pass a function
