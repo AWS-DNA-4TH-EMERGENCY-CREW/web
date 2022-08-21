@@ -7,6 +7,8 @@ import reportWebVitals from './reportWebVitals'
 import '@aws-amplify/ui-react/styles.css'
 import './reset.css'
 import './index.css'
+import { BrowserRouter } from 'react-router-dom'
+import App from './App'
 
 
 Amplify.configure(config)
@@ -16,6 +18,9 @@ const root = createRoot(container)
 root.render(
     <React.StrictMode>
         <AmplifyProvider>
+            <BrowserRouter>
+                <App />
+            </BrowserRouter>
         </AmplifyProvider>
     </React.StrictMode>,
 )
