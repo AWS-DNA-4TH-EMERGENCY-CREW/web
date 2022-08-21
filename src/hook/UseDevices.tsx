@@ -14,8 +14,12 @@ function useDevices (): [boolean, any | null, (streamConfig: any) => Promise<Str
         }
         setLoading(true)
         try {
+            console.log('handle permission call')
             const deviceInfo = await handlePermissions()
+            console.log('handle permission', deviceInfo)
+            console.log('getStream call')
             const streamInfo = await getStream(deviceInfo, streamConfig)
+            console.log('getStream call', streamInfo)
             setStoredStream(streamInfo)
             call(true)
             setLoading(false)
