@@ -7,7 +7,7 @@ import reportWebVitals from './reportWebVitals'
 import '@aws-amplify/ui-react/styles.css'
 import './reset.css'
 import './index.css'
-import { BrowserRouter } from 'react-router-dom'
+import { BrowserRouter, Link } from 'react-router-dom'
 import App from './App'
 
 
@@ -19,7 +19,33 @@ root.render(
     <React.StrictMode>
         <AmplifyProvider>
             <BrowserRouter>
-                <App />
+                <div style={{
+                    position: 'fixed',
+                    width: '100%',
+                    display: 'flex',
+                    marginTop: '8px',
+                    marginLeft: '1.5rem',
+                    padding: '10px 25px 25px 10px'
+                }}>
+                    <Link to="/" style={{
+                        display: 'flex', justifyContent: 'flex-start',
+                        alignItems: 'center',
+                    }}>
+                        <div style={{ color: '#d85c27', fontSize: '1.5rem', lineHeight: '1.25rem', fontWeight: 'bold' }}>Emergency</div>
+                        <div style={{
+                            color: 'black',
+                            fontSize: '0.9rem',
+                            lineHeight: '0.9rem',
+                            fontWeight: 'normal',
+                            paddingLeft: '0.3rem',
+                            marginTop: '12px'
+                        }}>Time
+                        </div>
+                    </Link>
+                </div>
+                <div style={{ paddingTop: '62px', height:"100%" }}>
+                    <App />
+                </div>
             </BrowserRouter>
         </AmplifyProvider>
     </React.StrictMode>,
