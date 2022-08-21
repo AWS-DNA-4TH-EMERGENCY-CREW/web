@@ -25,6 +25,7 @@ function useDevices (): [boolean, any | null, (streamConfig: any) => Promise<Str
             setLoading(false)
             return streamInfo
         } catch (e) {
+            console.error('useDevices error', e)
             setError(error)
             return null
         }
