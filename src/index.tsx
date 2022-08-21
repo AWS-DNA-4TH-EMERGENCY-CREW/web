@@ -5,6 +5,7 @@ import { AmplifyProvider } from '@aws-amplify/ui-react'
 import config from './aws-exports'
 import reportWebVitals from './reportWebVitals'
 import '@aws-amplify/ui-react/styles.css'
+import './reset.css'
 import './index.css'
 
 
