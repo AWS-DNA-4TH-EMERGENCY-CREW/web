@@ -98,7 +98,7 @@ function Map () {
                         latitude: 37.495378727608546,
                         zoom: 12,
                     }}
-                    style={{ width: '100%', height: "calc(100vh - 62px)", marginTop: "62px" }}
+                    style={{ width: '100%', height: "calc(100vh - 62px)"}}
                 >
                     {locationData.map((loc) => (
                         <MarkerWithPopup

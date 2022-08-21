@@ -24,8 +24,8 @@ root.render(
                     width: '100%',
                     display: 'flex',
                     marginTop: '8px',
-                    marginLeft: '1.5rem',
-                    padding: '10px 25px 25px 10px'
+                    marginLeft: '0.5rem',
+                    padding: '10px 10px'
                 }}>
                     <Link to="/" style={{
                         display: 'flex', justifyContent: 'flex-start',
