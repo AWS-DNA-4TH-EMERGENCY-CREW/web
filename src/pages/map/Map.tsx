@@ -161,8 +161,8 @@ function MarkerWithPopup ({ latitude, longitude, url, channelTitle, thumbnailUrl
             )}
             {showPopup && (
                 <Popup
-                    maxWidth="60%"
-                    style={{ width: '60%', boxShadow: '0 20px 40px rgb(0 0 0 / 10%)' }}
+                    maxWidth="90%"
+                    style={{ width: '90%', boxShadow: '0 20px 40px rgb(0 0 0 / 10%)' }}
                     latitude={latitude}
                     longitude={longitude}
                     offset={{ bottom: [0, -40] }}
