@@ -147,24 +147,24 @@ function MarkerWithPopup ({ latitude, longitude, url, channelTitle, thumbnailUrl
             {showPopup && (
                 <Popup
                     maxWidth="50%"
-                    style={{ width: '50%' }}
+                    style={{ width: '50%', boxShadow: '0 20px 40px rgb(0 0 0 / 10%)' }}
                     latitude={latitude}
                     longitude={longitude}
                     offset={{ bottom: [0, -40] }}
                     onClose={() => setShowPopup(false)}
                 >
                     <ColumnFlex>
-                        <div style={{ fontWeight: 'bold', fontSize: '1.5rem', padding: '10px 10px', alignSelf: 'start' }}>{channelTitle}</div>
+                        <div style={{ fontWeight: 'bold', fontSize: '1.3rem', padding: '0 5px 5px 0', alignSelf: 'start' }}>{channelTitle}</div>
                         {endTime == null && (
-                            <div style={{ padding: '0 10px', alignSelf: 'start' }}>
-                                <div style={{ color: '#7B6767', fontWeight: 'lighter', fontSize: '1rem', }}>{startTimeStr} </div>
+                            <div style={{ padding: '0 5px 0 0', alignSelf: 'start' }}>
+                                <div style={{ color: '#7B6767', fontWeight: '300', fontSize: '0.8rem', }}>{startTimeStr} </div>
                             </div>
                         )}
                         {endTime != null && (
-                            <div style={{ padding: '0 10px', alignSelf: 'start', display: 'flex' }}>
-                                <div style={{ color: '#7B6767', fontWeight: 'lighter', fontSize: '1rem' }}>{startTimeStr} </div>
-                                <div style={{ color: '#7B6767', fontWeight: 'lighter', fontSize: '1rem', padding: '0 5px' }}>~</div>
-                                <div style={{ color: '#7B6767', fontWeight: 'lighter', fontSize: '1rem' }}>{endTimeStr} </div>
+                            <div style={{ padding: '0 5px 0 0', alignSelf: 'start', display: 'flex' }}>
+                                <div style={{ color: '#7B6767', fontWeight: '300', fontSize: '0.8rem' }}>{startTimeStr} </div>
+                                <div style={{ color: '#7B6767', fontWeight: '300', fontSize: '0.8rem', padding: '0 5px' }}>~</div>
+                                <div style={{ color: '#7B6767', fontWeight: '300', fontSize: '0.8rem' }}>{endTimeStr} </div>
                             </div>
                         )}
                         <video ref={video} style={{ width: '100%', height: '100%', marginTop: '5px' }} playsInline></video>
