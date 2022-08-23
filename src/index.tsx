@@ -43,7 +43,7 @@ root.render(
                         </div>
                     </Link>
                 </div>
-                <div style={{ paddingTop: '62px', height:"100%" }}>
+                <div style={{ padding: '62px 1rem 1rem 0', height: '100%' }}>
                     <App />
                 </div>
             </BrowserRouter>
