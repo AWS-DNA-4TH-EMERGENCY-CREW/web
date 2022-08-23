@@ -11,7 +11,6 @@ export enum ChanelType {
 
 export interface PlayableChannelInfo {
     playbackUrl: string
-    videoUrl: string
     channelName: string
     channelTitle: string
     lat: string

@@ -6,6 +6,7 @@ import { ChanelType, getChannelsAPI, PlayableChannelInfo } from '../../api/Map'
 import ColumnFlex from '../../components/ColumnFlex'
 import randomColor from 'randomcolor'
 import { Link } from 'react-router-dom'
+import cctv from '../../image/cctv.png'
 
 type LatLng = {
     lat: number
@@ -63,6 +64,8 @@ function toString (date: Date): string {
         return date.toISOString().replace('T', ' ').substring(0, 19)
     }
 }
+
+
 
 function MarkerWithPopup ({ latitude, longitude, url, channelTitle, thumbnailUrl, startTime, endTime, onClick, channelType }: MarkerWithPopupProps) {
     // @ts-ignore
@@ -137,7 +140,7 @@ function MarkerWithPopup ({ latitude, longitude, url, channelTitle, thumbnailUrl
 
     return (
         <>
-            {thumbnailUrl && (
+            {channelType === ChanelType.CCTV ? (
                 <Marker
                     latitude={latitude}
                     longitude={longitude}
@@ -145,21 +148,32 @@ function MarkerWithPopup ({ latitude, longitude, url, channelTitle, thumbnailUrl
                     scale={0.8}
                     color={randomColor()}
                 >
-                    {thumbnailUrl && (
+                    <img style={{ width: '21px', height: '100%' }}
+                         src={cctv} alt="cctv" />
+                </Marker>
+            ) : (
+                thumbnailUrl != null ? (
+                    <Marker
+                        latitude={latitude}
+                        longitude={longitude}
+                        onClick={handleMarkerClick}
+                        scale={0.8}
+                        color={randomColor()}
+                    >
                         <img style={{ width: '100%', height: '100%', maxWidth: '5rem', maxHeight: '5rem' }}
                              src={thumbnailUrl} alt="test" />
-                    )}
-                </Marker>
-            )}
-            {thumbnailUrl == null && (
-                <Marker
-                    latitude={latitude}
-                    longitude={longitude}
-                    onClick={handleMarkerClick}
-                    scale={0.8}
-                    color={randomColor()}
-                />
-            )}
+                    </Marker>
+                ) : (
+                    <Marker
+                        latitude={latitude}
+                        longitude={longitude}
+                        onClick={handleMarkerClick}
+                        scale={0.8}
+                        color={randomColor()}
+                    />
+                )
+            )
+            }
             {showPopup && (
                 <Popup
                     maxWidth="90%"
@@ -192,11 +206,11 @@ function MarkerWithPopup ({ latitude, longitude, url, channelTitle, thumbnailUrl
 }
 
 const optionToString = {
-    [ChanelType.LIVE]: "라이브 방송",
-    [ChanelType.CCTV]: "CCTV",
-    [ChanelType.VIDEO]: "저장된 영상",
-    [ChanelType.ENCODING]: "처리 중인 영상",
-    [ChanelType.TWITTER]: "트위터",
+    [ChanelType.LIVE]: '라이브 방송',
+    [ChanelType.CCTV]: 'CCTV',
+    [ChanelType.VIDEO]: '저장된 영상',
+    [ChanelType.ENCODING]: '처리 중인 영상',
+    [ChanelType.TWITTER]: '트위터',
 }
 
 function Map () {
@@ -218,6 +232,9 @@ function Map () {
     }
 
     useEffect(() => {
+        getChannelsAPI()
+            .then(data => setLocationData(data))
+
         const interval = setInterval(() => {
             getChannelsAPI()
                 .then(data => setLocationData(data))
@@ -235,13 +252,13 @@ function Map () {
         console.log(e.target.name)
         setViewOption({
             ...viewOption,
-            [e.target.name] : e.target.checked
+            [e.target.name]: e.target.checked
         })
     }
 
     return (
         <View>
-            <div style={{ display: 'flex', flexWrap: "wrap", marginLeft: '0.5rem', padding: '10px 5px 10px 5px' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', marginLeft: '0.5rem', padding: '10px 5px 10px 5px' }}>
                 {Object.values(ChanelType).map(type => (
                     <CheckboxField margin="5px 5px"
                                    key={type}
@@ -277,7 +294,7 @@ function Map () {
                                 key={loc.playbackUrl + loc.lat}
                                 latitude={Number(loc.lat)}
                                 longitude={Number(loc.long)}
-                                url={loc.videoUrl === '' ? loc.playbackUrl : loc.videoUrl}
+                                url={loc.playbackUrl}
                                 startTime={new Date(loc.startTime)}
                                 endTime={(loc.endTime == null || loc.endTime === '') ? undefined : new Date(loc.endTime)}
                                 thumbnailUrl={loc.thumbnailUrl === '' ? undefined : loc.thumbnailUrl}

@@ -1,6 +1,5 @@
 import React from 'react'
 import { Route, Routes } from 'react-router-dom'
-import Home from './pages/home/Home'
 import Broadcast from './pages/broadcast/Broadcast'
 import Map from './pages/map/Map'
 
