@@ -65,9 +65,17 @@ function toString (date: Date): string {
     }
 }
 
+type PopupProps = {
+    onClose: () => void
+    latitude: number
+    longitude: number
+    url: string
+    channelTitle: string
+    startTime: Date
+    endTime?: Date
+}
 
-
-function MarkerWithPopup ({ latitude, longitude, url, channelTitle, thumbnailUrl, startTime, endTime, onClick, channelType }: MarkerWithPopupProps) {
+function CustomPopup ({ url, channelTitle, startTime, endTime, latitude, longitude, onClose }: PopupProps) {
     // @ts-ignore
     const { IVSPlayer } = window
     const [ivsPlayer, setIvsPlayer] = useState<any | null>(null)
@@ -75,21 +83,7 @@ function MarkerWithPopup ({ latitude, longitude, url, channelTitle, thumbnailUrl
     const [now, setNow] = useState(new Date())
     const [startTimeStr, setStartTimeStr] = useState<string>(toString(startTime))
     const [endTimeStr, setEndTimeStr] = useState<string | null>(null)
-
-    const [showPopup, setShowPopup] = useState(false)
-
     const video = useRef<HTMLVideoElement>(null)
-
-    const handleMarkerClick = ({ originalEvent }: MapboxEvent<MouseEvent>) => {
-        originalEvent.stopPropagation()
-        onClick({
-            lat: latitude,
-            lng: longitude
-        })
-        setTimeout(() => {
-            setShowPopup(true)
-        }, easeDurationInMs)
-    }
 
     useEffect(() => {
         if (IVSPlayer.isPlayerSupported) {
@@ -102,22 +96,17 @@ function MarkerWithPopup ({ latitude, longitude, url, channelTitle, thumbnailUrl
     }, [ivsPlayer, IVSPlayer])
 
     useEffect(() => {
-        if (ivsPlayer == null || !showPopup) {
+        if (ivsPlayer == null) {
             return
         }
-        if (showPopup) {
-            ivsPlayer.attachHTMLVideoElement(video.current)
-            ivsPlayer.load(url)
-            ivsPlayer.setMuted(false)
-            ivsPlayer.play()
-        } else {
-            ivsPlayer.setMuted(true)
-            ivsPlayer.pause()
-            ivsPlayer.delete()
-        }
+        ivsPlayer.attachHTMLVideoElement(video.current)
+        console.log('load url', url)
+        ivsPlayer.load(url)
+        ivsPlayer.setMuted(false)
+        ivsPlayer.play()
         console.log(ivsPlayer)
         console.log('player started')
-    }, [ivsPlayer, showPopup, url])
+    }, [ivsPlayer, url])
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -137,6 +126,50 @@ function MarkerWithPopup ({ latitude, longitude, url, channelTitle, thumbnailUrl
             setEndTimeStr(toString(endTime))
         }
     }, [endTime, now, startTime])
+
+    return (
+        <Popup
+            maxWidth="85%"
+            style={{ boxShadow: '0 20px 40px rgb(0 0 0 / 10%)' }}
+            latitude={latitude}
+            longitude={longitude}
+            offset={{ bottom: [0, -40] }}
+            onClose={onClose}
+        >
+            <ColumnFlex>
+                <div style={{ fontWeight: 'bold', fontSize: '1.3rem', padding: '0 5px 5px 0', alignSelf: 'start' }}>{channelTitle}</div>
+                {endTime == null && (
+                    <div style={{ padding: '0 5px 0 0', alignSelf: 'start' }}>
+                        <div style={{ color: '#7B6767', fontWeight: '300', fontSize: '0.8rem', }}>{startTimeStr} </div>
+                    </div>
+                )}
+                {endTime != null && (
+                    <div style={{ padding: '0 5px 0 0', alignSelf: 'start', display: 'flex' }}>
+                        <div style={{ color: '#7B6767', fontWeight: '300', fontSize: '0.8rem' }}>{startTimeStr} </div>
+                        <div style={{ color: '#7B6767', fontWeight: '300', fontSize: '0.8rem', padding: '0 5px' }}>~</div>
+                        <div style={{ color: '#7B6767', fontWeight: '300', fontSize: '0.8rem' }}>{endTimeStr} </div>
+                    </div>
+                )}
+                <video ref={video} style={{ width: '100%', height: '100%', marginTop: '5px', maxHeight: '30vh' }} playsInline></video>
+            </ColumnFlex>
+        </Popup>
+    )
+}
+
+
+function MarkerWithPopup ({ latitude, longitude, url, channelTitle, thumbnailUrl, startTime, endTime, onClick, channelType }: MarkerWithPopupProps) {
+    const [showPopup, setShowPopup] = useState(false)
+
+    const handleMarkerClick = ({ originalEvent }: MapboxEvent<MouseEvent>) => {
+        originalEvent.stopPropagation()
+        onClick({
+            lat: latitude,
+            lng: longitude
+        })
+        setTimeout(() => {
+            setShowPopup(true)
+        }, easeDurationInMs)
+    }
 
     return (
         <>
@@ -175,31 +208,7 @@ function MarkerWithPopup ({ latitude, longitude, url, channelTitle, thumbnailUrl
             )
             }
             {showPopup && (
-                <Popup
-                    maxWidth="85%"
-                    style={{ boxShadow: '0 20px 40px rgb(0 0 0 / 10%)' }}
-                    latitude={latitude}
-                    longitude={longitude}
-                    offset={{ bottom: [0, -40] }}
-                    onClose={() => setShowPopup(false)}
-                >
-                    <ColumnFlex>
-                        <div style={{ fontWeight: 'bold', fontSize: '1.3rem', padding: '0 5px 5px 0', alignSelf: 'start' }}>{channelTitle}</div>
-                        {endTime == null && (
-                            <div style={{ padding: '0 5px 0 0', alignSelf: 'start' }}>
-                                <div style={{ color: '#7B6767', fontWeight: '300', fontSize: '0.8rem', }}>{startTimeStr} </div>
-                            </div>
-                        )}
-                        {endTime != null && (
-                            <div style={{ padding: '0 5px 0 0', alignSelf: 'start', display: 'flex' }}>
-                                <div style={{ color: '#7B6767', fontWeight: '300', fontSize: '0.8rem' }}>{startTimeStr} </div>
-                                <div style={{ color: '#7B6767', fontWeight: '300', fontSize: '0.8rem', padding: '0 5px' }}>~</div>
-                                <div style={{ color: '#7B6767', fontWeight: '300', fontSize: '0.8rem' }}>{endTimeStr} </div>
-                            </div>
-                        )}
-                        <video ref={video} style={{ width: '100%', height: '100%', marginTop: '5px', maxHeight: "30vh" }} playsInline></video>
-                    </ColumnFlex>
-                </Popup>
+                <CustomPopup onClose={() => setShowPopup(false)} latitude={latitude} longitude={longitude} url={url} channelTitle={channelTitle} startTime={startTime} endTime={endTime}/>
             )}
         </>
     )
