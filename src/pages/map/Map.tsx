@@ -1,10 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react'
-import { CheckboxField, Flex, MapView, View } from '@aws-amplify/ui-react'
+import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
+import { Button, CheckboxField, Flex, MapView, TextField, View } from '@aws-amplify/ui-react'
 import { MapRef, Marker, Popup } from 'react-map-gl'
 import { MapboxEvent } from 'react-map-gl/src/types'
 import { getChannelsAPI, PlayableChannelInfo } from '../../api/Map'
 import ColumnFlex from '../../components/ColumnFlex'
 import randomColor from 'randomcolor'
+import { Link } from 'react-router-dom'
 
 type LatLng = {
     lat: number
@@ -198,6 +199,12 @@ function Map () {
 
     const mapRef = useRef<MapRef>(null)
 
+    const [title, setTitle] = useState('')
+
+    const changeTitle = (title: ChangeEvent<HTMLTextAreaElement>) => {
+        setTitle(title.target.value)
+    }
+
     useEffect(() => {
         const interval = setInterval(() => {
             getChannelsAPI()
@@ -256,6 +263,36 @@ function Map () {
                         ))}
                 </MapView>
             </Flex>
+            <div style={{
+                position: 'fixed',
+                bottom: '10px',
+                width: '100%',
+                height: '10vh',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                zIndex: 100
+            }}>
+                <div style={{
+                    backgroundColor: 'white',
+                    boxShadow: '0 20px 40px rgb(0 0 0 / 10%)',
+                    borderRadius: '10px'
+                }}>
+                    <div style={{
+                        padding: '1.5rem',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}>
+                        <TextField size="small" fontSize="1rem" label="방송 이름" labelHidden={true} placeholder="방송 이름" value={title} onChange={changeTitle} />
+                        <Link to={`/broadcast?titleName=${title}`} replace={true} style={{ marginLeft: '15px' }}>
+                            <Button variation="primary">
+                                방송하러 가기
+                            </Button>
+                        </Link>
+                    </div>
+                </div>
+            </div>
         </View>
     )
 }
