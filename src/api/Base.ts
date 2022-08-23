@@ -4,7 +4,8 @@ export const post = (url: string, body? : string) => {
     return fetch(url, {
         method: 'POST',
         headers: {
-            'Content-type': 'application/json'
+            'Content-type': 'application/json',
+            'x-api-key': 'S4NIlfUiZJ54oar3MbjaC3xJIEoTnfpMacagQYhC'
         },
         body
     })
@@ -15,7 +16,8 @@ export const get = (url: string) => {
     return fetch(url, {
         method: 'GET',
         headers: {
-            'Content-type': 'application/json'
+            'Content-type': 'application/json',
+            'x-api-key': 'S4NIlfUiZJ54oar3MbjaC3xJIEoTnfpMacagQYhC'
         }
     })
 }
