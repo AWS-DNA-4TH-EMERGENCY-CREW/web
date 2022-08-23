@@ -176,8 +176,8 @@ function MarkerWithPopup ({ latitude, longitude, url, channelTitle, thumbnailUrl
             }
             {showPopup && (
                 <Popup
-                    maxWidth="90%"
-                    style={{ width: '90%', boxShadow: '0 20px 40px rgb(0 0 0 / 10%)' }}
+                    maxWidth="85%"
+                    style={{ boxShadow: '0 20px 40px rgb(0 0 0 / 10%)' }}
                     latitude={latitude}
                     longitude={longitude}
                     offset={{ bottom: [0, -40] }}
@@ -197,7 +197,7 @@ function MarkerWithPopup ({ latitude, longitude, url, channelTitle, thumbnailUrl
                                 <div style={{ color: '#7B6767', fontWeight: '300', fontSize: '0.8rem' }}>{endTimeStr} </div>
                             </div>
                         )}
-                        <video ref={video} style={{ width: '100%', height: '100%', marginTop: '5px' }} playsInline></video>
+                        <video ref={video} style={{ width: '100%', height: '100%', marginTop: '5px', maxHeight: "30vh" }} playsInline></video>
                     </ColumnFlex>
                 </Popup>
             )}
