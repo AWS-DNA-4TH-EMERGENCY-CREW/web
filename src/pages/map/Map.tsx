@@ -1,12 +1,18 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { CheckboxField, Flex, MapView, View } from '@aws-amplify/ui-react'
-import { Marker, Popup } from 'react-map-gl'
+import { MapRef, Marker, Popup } from 'react-map-gl'
 import { MapboxEvent } from 'react-map-gl/src/types'
 import { getChannelsAPI, PlayableChannelInfo } from '../../api/Map'
 import ColumnFlex from '../../components/ColumnFlex'
 import randomColor from 'randomcolor'
 
+type LatLng = {
+    lat: number
+    lng: number
+}
+
 type MarkerWithPopupProps = {
+    onClick: (data: LatLng) => void
     key: string
     latitude: number
     longitude: number
@@ -17,6 +23,8 @@ type MarkerWithPopupProps = {
     startTime: Date
     endTime?: Date
 }
+
+const easeDurationInMs = 500
 
 function difference2Parts (a: Date, b: Date) {
     const milliseconds = a.getTime() - b.getTime()
@@ -54,7 +62,7 @@ function toString (date: Date): string {
     }
 }
 
-function MarkerWithPopup ({ latitude, longitude, url, channelTitle, thumbnailUrl, startTime, endTime }: MarkerWithPopupProps) {
+function MarkerWithPopup ({ latitude, longitude, url, channelTitle, thumbnailUrl, startTime, endTime, onClick }: MarkerWithPopupProps) {
     // @ts-ignore
     const { IVSPlayer } = window
     const [ivsPlayer, setIvsPlayer] = useState<any | null>(null)
@@ -69,7 +77,13 @@ function MarkerWithPopup ({ latitude, longitude, url, channelTitle, thumbnailUrl
 
     const handleMarkerClick = ({ originalEvent }: MapboxEvent<MouseEvent>) => {
         originalEvent.stopPropagation()
-        setShowPopup(true)
+        onClick({
+            lat: latitude,
+            lng: longitude
+        })
+        setTimeout(() => {
+            setShowPopup(true)
+        }, easeDurationInMs)
     }
 
     useEffect(() => {
@@ -182,6 +196,8 @@ function Map () {
     const [showLive, setShowLive] = useState(true)
     const [showStored, setShowStored] = useState(true)
 
+    const mapRef = useRef<MapRef>(null)
+
     useEffect(() => {
         const interval = setInterval(() => {
             getChannelsAPI()
@@ -191,6 +207,10 @@ function Map () {
             clearInterval(interval)
         }
     }, [])
+
+    const onClick = ({ lat, lng }: LatLng) => {
+        mapRef.current?.easeTo({ center: { lng, lat }, duration: easeDurationInMs, zoom: 14 })
+    }
 
     return (
         <View>
@@ -204,6 +224,7 @@ function Map () {
             </div>
             <Flex direction={'column'} alignItems={'center'}>
                 <MapView
+                    ref={mapRef}
                     initialViewState={{
                         longitude: 127.06382476375357,
                         latitude: 37.495378727608546,
@@ -221,6 +242,7 @@ function Map () {
                         })
                         .map((loc) => (
                             <MarkerWithPopup
+                                onClick={onClick}
                                 channelName={loc.channelName}
                                 channelTitle={loc.channelTitle}
                                 key={loc.playbackUrl + loc.lat}
