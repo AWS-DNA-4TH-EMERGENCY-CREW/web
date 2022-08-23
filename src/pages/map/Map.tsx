@@ -2,7 +2,7 @@ import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
 import { Button, CheckboxField, Flex, MapView, TextField, View } from '@aws-amplify/ui-react'
 import { MapRef, Marker, Popup } from 'react-map-gl'
 import { MapboxEvent } from 'react-map-gl/src/types'
-import { getChannelsAPI, PlayableChannelInfo } from '../../api/Map'
+import { ChanelType, getChannelsAPI, PlayableChannelInfo } from '../../api/Map'
 import ColumnFlex from '../../components/ColumnFlex'
 import randomColor from 'randomcolor'
 import { Link } from 'react-router-dom'
@@ -21,6 +21,7 @@ type MarkerWithPopupProps = {
     channelName: string
     channelTitle: string
     thumbnailUrl?: string
+    channelType: ChanelType
     startTime: Date
     endTime?: Date
 }
@@ -63,7 +64,7 @@ function toString (date: Date): string {
     }
 }
 
-function MarkerWithPopup ({ latitude, longitude, url, channelTitle, thumbnailUrl, startTime, endTime, onClick }: MarkerWithPopupProps) {
+function MarkerWithPopup ({ latitude, longitude, url, channelTitle, thumbnailUrl, startTime, endTime, onClick, channelType }: MarkerWithPopupProps) {
     // @ts-ignore
     const { IVSPlayer } = window
     const [ivsPlayer, setIvsPlayer] = useState<any | null>(null)
@@ -190,13 +191,24 @@ function MarkerWithPopup ({ latitude, longitude, url, channelTitle, thumbnailUrl
     )
 }
 
+const optionToString = {
+    [ChanelType.LIVE]: "라이브 방송",
+    [ChanelType.CCTV]: "CCTV",
+    [ChanelType.VIDEO]: "저장된 영상",
+    [ChanelType.ENCODING]: "처리 중인 영상",
+    [ChanelType.TWITTER]: "트위터",
+}
 
 function Map () {
     const [locationData, setLocationData] = useState<PlayableChannelInfo[]>([])
 
-    const [showLive, setShowLive] = useState(true)
-    const [showStored, setShowStored] = useState(true)
-
+    const [viewOption, setViewOption] = useState<Record<string, boolean>>({
+        [ChanelType.LIVE]: true,
+        [ChanelType.CCTV]: true,
+        [ChanelType.VIDEO]: true,
+        [ChanelType.ENCODING]: true,
+        [ChanelType.TWITTER]: true,
+    })
     const mapRef = useRef<MapRef>(null)
 
     const [title, setTitle] = useState('')
@@ -209,7 +221,7 @@ function Map () {
         const interval = setInterval(() => {
             getChannelsAPI()
                 .then(data => setLocationData(data))
-        }, 2000)
+        }, 10 * 1000)
         return () => {
             clearInterval(interval)
         }
@@ -219,15 +231,25 @@ function Map () {
         mapRef.current?.easeTo({ center: { lng, lat }, duration: easeDurationInMs, zoom: 14 })
     }
 
+    const onViewOptionClick = (e: ChangeEvent<HTMLInputElement>) => {
+        console.log(e.target.name)
+        setViewOption({
+            ...viewOption,
+            [e.target.name] : e.target.checked
+        })
+    }
+
     return (
         <View>
-            <div style={{ display: 'flex', marginLeft: '0.5rem', padding: '10px 5px 10px 5px' }}>
-                <CheckboxField margin="0 5px" label="라이브 방송" name="live" value="yes"
-                               checked={showLive}
-                               onChange={(e) => setShowLive(e.target.checked)} />
-                <CheckboxField margin="0 5px" label="저장된 영상" name="stored" value="yes"
-                               checked={showStored}
-                               onChange={(e) => setShowStored(e.target.checked)} />
+            <div style={{ display: 'flex', flexWrap: "wrap", marginLeft: '0.5rem', padding: '10px 5px 10px 5px' }}>
+                {Object.values(ChanelType).map(type => (
+                    <CheckboxField margin="5px 5px"
+                                   key={type}
+                                   label={optionToString[type]} name={type}
+                                   value="yes"
+                                   checked={viewOption[type]}
+                                   onChange={onViewOptionClick} />
+                ))}
             </div>
             <Flex direction={'column'} alignItems={'center'}>
                 <MapView
@@ -242,10 +264,10 @@ function Map () {
                     {locationData
                         .filter(l => !isNaN(Number(l.lat)) && !isNaN(Number(l.long)))
                         .filter(l => {
-                            const isLive = l.videoUrl === ''
-                            if (!showLive && isLive) return false
-                            else if (!showStored && !isLive) return false
-                            else return true
+                            for (const type of Object.values(ChanelType)) {
+                                if (!viewOption[type] && l.channelType === type) return false
+                            }
+                            return true
                         })
                         .map((loc) => (
                             <MarkerWithPopup
@@ -259,6 +281,7 @@ function Map () {
                                 startTime={new Date(loc.startTime)}
                                 endTime={(loc.endTime == null || loc.endTime === '') ? undefined : new Date(loc.endTime)}
                                 thumbnailUrl={loc.thumbnailUrl === '' ? undefined : loc.thumbnailUrl}
+                                channelType={loc.channelType}
                             />
                         ))}
                 </MapView>
