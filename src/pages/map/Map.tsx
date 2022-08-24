@@ -302,7 +302,7 @@ function Map () {
         const interval = setInterval(() => {
             getChannelsAPI()
                 .then(data => setLocationData(data))
-        }, 30 * 1000)
+        }, 10 * 1000)
         return () => {
             clearInterval(interval)
         }
