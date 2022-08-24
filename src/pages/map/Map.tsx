@@ -2,7 +2,7 @@ import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
 import { Button, CheckboxField, Flex, MapView, TextField, View } from '@aws-amplify/ui-react'
 import { MapRef, Marker, Popup } from 'react-map-gl'
 import { MapboxEvent } from 'react-map-gl/src/types'
-import { ChannelType, getChannelsAPI, PlayableChannelInfo } from '../../api/Map'
+import { ChannelType, getCCTVProxyUrl, getChannelsAPI, PlayableChannelInfo } from '../../api/Map'
 import ColumnFlex from '../../components/ColumnFlex'
 import randomColor from 'randomcolor'
 import { Link } from 'react-router-dom'
@@ -73,6 +73,7 @@ type PopupProps = {
     longitude: number
     url: string
     channelTitle: string
+    channelName: string
     channelType: ChannelType
     startTime: Date
     endTime?: Date
@@ -87,7 +88,7 @@ function SimpleLoader ({ message }: { message: string }) {
     )
 }
 
-function CustomPopup ({ url, channelTitle, channelType, startTime, endTime, latitude, longitude, onClose }: PopupProps) {
+function CustomPopup ({ url, channelName, channelTitle, channelType, startTime, endTime, latitude, longitude, onClose }: PopupProps) {
     // @ts-ignore
     const { IVSPlayer } = window
     const [ivsPlayer, setIvsPlayer] = useState<any | null>(null)
@@ -112,13 +113,30 @@ function CustomPopup ({ url, channelTitle, channelType, startTime, endTime, lati
             return
         }
         ivsPlayer.attachHTMLVideoElement(video.current)
-        console.log('load url', url)
-        ivsPlayer.load(url)
+        if (true || channelType !== ChannelType.CCTV) {
+            console.log('load url', url)
+            ivsPlayer.load(url)
+        } else {
+            const splitResult = url.split('/')
+            const fileName = splitResult[splitResult.length - 1]
+            console.log({ url, fileName })
+
+            const cctvProxyUrl = getCCTVProxyUrl(channelName, fileName)
+            ivsPlayer.load(cctvProxyUrl)
+            console.log('load cctvProxyUrl', cctvProxyUrl)
+        }
         ivsPlayer.setMuted(false)
+        // setTimeout(() => {
         ivsPlayer.play()
         console.log(ivsPlayer)
         console.log('player started')
-    }, [channelType, ivsPlayer, url])
+        // }, 5000)
+
+        return () => {
+            ivsPlayer.pause()
+            ivsPlayer.delete()
+        }
+    }, [channelName, channelType, ivsPlayer, url])
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -175,7 +193,18 @@ function CustomPopup ({ url, channelTitle, channelType, startTime, endTime, lati
 }
 
 
-function MarkerWithPopup ({ latitude, longitude, url, channelTitle, thumbnailUrl, startTime, endTime, onClick, channelType }: MarkerWithPopupProps) {
+function MarkerWithPopup ({
+                              latitude,
+                              longitude,
+                              url,
+                              channelName,
+                              channelTitle,
+                              thumbnailUrl,
+                              startTime,
+                              endTime,
+                              onClick,
+                              channelType
+                          }: MarkerWithPopupProps) {
     const [showPopup, setShowPopup] = useState(false)
 
     const handleMarkerClick = ({ originalEvent }: MapboxEvent<MouseEvent>) => {
@@ -229,6 +258,7 @@ function MarkerWithPopup ({ latitude, longitude, url, channelTitle, thumbnailUrl
                 <CustomPopup onClose={() => setShowPopup(false)}
                              latitude={latitude} longitude={longitude}
                              url={url}
+                             channelName={channelName}
                              channelTitle={channelTitle}
                              channelType={channelType}
                              startTime={startTime} endTime={endTime} />
@@ -270,7 +300,7 @@ function Map () {
         const interval = setInterval(() => {
             getChannelsAPI()
                 .then(data => setLocationData(data))
-        }, 10 * 1000)
+        }, 30 * 1000)
         return () => {
             clearInterval(interval)
         }
@@ -286,6 +316,11 @@ function Map () {
             ...viewOption,
             [e.target.name]: e.target.checked
         })
+    }
+
+    if (window.location.protocol === 'https:') {
+        window.location.href = 'http:' + window.location.href.substring(window.location.protocol.length)
+        return <div/>
     }
 
     return (

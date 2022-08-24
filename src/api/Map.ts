@@ -31,3 +31,18 @@ export async function getChannelsAPI (): Promise<PlayableChannelInfo[]> {
         throw new Error(e)
     }
 }
+
+export function getCCTVProxyUrl (channelName: string, fileName: string) {
+    return `${HOST}/channels/${channelName}/${fileName}`
+}
+
+// export async function getCCTVProxyAPI (channelName: string, fileName: string): Promise<PlayableChannelInfo[]> {
+//     console.log('call getCCTVProxyAPI')
+//
+//     try {
+//         const res = await get(`${HOST}/channels/${channelName}/${fileName}`)
+//         return res.json()
+//     } catch (e: any) {
+//         throw new Error(e)
+//     }
+// }
