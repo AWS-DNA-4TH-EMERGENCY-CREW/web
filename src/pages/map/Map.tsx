@@ -318,11 +318,6 @@ function Map () {
         })
     }
 
-    if (window.location.protocol === 'https:') {
-        window.location.href = 'http:' + window.location.href.substring(window.location.protocol.length)
-        return <div/>
-    }
-
     return (
         <View>
             <div style={{ display: 'flex', flexWrap: 'wrap', marginLeft: '0.5rem', padding: '10px 5px 10px 5px' }}>
