@@ -7,7 +7,7 @@ import reportWebVitals from './reportWebVitals'
 import '@aws-amplify/ui-react/styles.css'
 import './reset.css'
 import './index.css'
-import { BrowserRouter, Link } from 'react-router-dom'
+import { BrowserRouter } from 'react-router-dom'
 import App from './App'
 
 
@@ -27,9 +27,10 @@ root.render(
                     marginLeft: '0.5rem',
                     padding: '10px 10px'
                 }}>
-                    <Link to="/" style={{
+                    <div onClick={() => window.location.href = `/`} style={{
                         display: 'flex', justifyContent: 'flex-start',
                         alignItems: 'center',
+                        cursor: 'pointer'
                     }}>
                         <div style={{ color: '#d85c27', fontSize: '1.5rem', lineHeight: '1.25rem', fontWeight: 'bold' }}>Emergency</div>
                         <div style={{
@@ -41,7 +42,7 @@ root.render(
                             marginTop: '12px'
                         }}>Time
                         </div>
-                    </Link>
+                    </div>
                 </div>
                 <div style={{ padding: '62px 0 0 0', height: '100%' }}>
                     <App />
