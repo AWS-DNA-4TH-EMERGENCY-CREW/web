@@ -5,7 +5,7 @@ import { MapboxEvent } from 'react-map-gl/src/types'
 import { ChannelType, getCCTVProxyUrl, getChannelsAPI, PlayableChannelInfo } from '../../api/Map'
 import ColumnFlex from '../../components/ColumnFlex'
 import randomColor from 'randomcolor'
-import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import cctv from '../../image/cctv.png'
 import { BoldText } from '../../components/Text'
 import Loader from '../../components/Loader'
@@ -276,6 +276,8 @@ const optionToString = {
 }
 
 function Map () {
+    const navigate = useNavigate()
+
     const [locationData, setLocationData] = useState<PlayableChannelInfo[]>([])
 
     const [viewOption, setViewOption] = useState<Record<string, boolean>>({
@@ -389,11 +391,16 @@ function Map () {
                     }}>
                         <TextField paddingRight="0px" size="small" fontSize="1rem" label="방송 이름" labelHidden={true} placeholder="방송 이름" value={title}
                                    onChange={changeTitle} />
-                        <Link to={`/broadcast?titleName=${title}`} replace={true} style={{ marginLeft: '15px', width: '40%' }}>
-                            <Button variation="primary" width="100%">
+                        <div style={{ marginLeft: '15px', width: '40%' }}>
+                            <Button onClick={() => window.location.href = `/broadcast?titleName=${title}`} variation="primary" width="100%">
                                 방송하기
                             </Button>
-                        </Link>
+                        </div>
+                        {/*<Link to={`/broadcast?titleName=${title}`} replace={true} style={{ marginLeft: '15px', width: '40%' }}>*/}
+                        {/*    <Button variation="primary" width="100%">*/}
+                        {/*        방송하기*/}
+                        {/*    </Button>*/}
+                        {/*</Link>*/}
                     </div>
                 </div>
             </div>
