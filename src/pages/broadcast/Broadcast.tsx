@@ -73,6 +73,7 @@ const Broadcast: FunctionComponent<Props> = (props) => {
             try {
                 const deviceInfo = await handlePermissions()
                 console.log(deviceInfo)
+                setCameraId(deviceInfo.videoDevices.length - 1)
                 setDevices(deviceInfo)
             } catch (e) {
                 console.error('handlePermission error', e)
