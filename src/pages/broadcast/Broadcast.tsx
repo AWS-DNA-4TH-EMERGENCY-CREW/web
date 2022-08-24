@@ -89,6 +89,9 @@ const Broadcast: FunctionComponent<Props> = (props) => {
         (async () => {
             try {
                 const stream = await getStream(devices, cameraId, streamConfig)
+                if (client.getVideoInputDevice('camera1')) {
+                    client.removeVideoInputDevice('camera1');
+                }
                 client.addVideoInputDevice(stream.cameraStream, 'camera1', { index: 0 }) // only 'index' is required for the position parameter
                 client.addAudioInputDevice(stream.microphoneStream, 'mic1')
             } catch (e) {

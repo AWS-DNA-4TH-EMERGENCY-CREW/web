@@ -19,7 +19,7 @@ export async function getStream (deiceInfo: DeviceInfo, cameraId: number,  strea
     return {
         cameraStream: await navigator.mediaDevices.getUserMedia({
             video: {
-                deviceId: deiceInfo.videoDevices[0].deviceId,
+                deviceId: deiceInfo.videoDevices[cameraId].deviceId,
                 width: {
                     ideal: streamConfig.maxResolution.width,
                     max: streamConfig.maxResolution.width,
