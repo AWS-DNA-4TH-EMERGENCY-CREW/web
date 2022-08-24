@@ -1,7 +1,8 @@
-html, body{
+html, body {
     height: 100%
 }
-#root, #root>div {
+
+#root, #root > div {
     height: 100vh;
 }
 
@@ -11,4 +12,14 @@ html {
 
 a {
     text-decoration: none;
+}
+
+.mapboxgl-popup-close-button, .maplibregl-popup-close-button {
+    padding: 5px 10px 5px 10px;
+    font-size: 1rem;
+}
+
+.mapboxgl-popup-content, .maplibregl-popup-content{
+    border-radius: 10px 10px 0 0;
+    padding: 5px 10px;
 }

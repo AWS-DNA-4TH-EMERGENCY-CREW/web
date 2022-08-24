@@ -2,11 +2,13 @@ import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
 import { Button, CheckboxField, Flex, MapView, TextField, View } from '@aws-amplify/ui-react'
 import { MapRef, Marker, Popup } from 'react-map-gl'
 import { MapboxEvent } from 'react-map-gl/src/types'
-import { ChanelType, getChannelsAPI, PlayableChannelInfo } from '../../api/Map'
+import { ChannelType, getChannelsAPI, PlayableChannelInfo } from '../../api/Map'
 import ColumnFlex from '../../components/ColumnFlex'
 import randomColor from 'randomcolor'
 import { Link } from 'react-router-dom'
 import cctv from '../../image/cctv.png'
+import { BoldText } from '../../components/Text'
+import Loader from '../../components/Loader'
 
 type LatLng = {
     lat: number
@@ -22,7 +24,7 @@ type MarkerWithPopupProps = {
     channelName: string
     channelTitle: string
     thumbnailUrl?: string
-    channelType: ChanelType
+    channelType: ChannelType
     startTime: Date
     endTime?: Date
 }
@@ -71,11 +73,21 @@ type PopupProps = {
     longitude: number
     url: string
     channelTitle: string
+    channelType: ChannelType
     startTime: Date
     endTime?: Date
 }
 
-function CustomPopup ({ url, channelTitle, startTime, endTime, latitude, longitude, onClose }: PopupProps) {
+function SimpleLoader ({ message }: { message: string }) {
+    return (
+        <ColumnFlex>
+            <Loader />
+            <BoldText>{message}</BoldText>
+        </ColumnFlex>
+    )
+}
+
+function CustomPopup ({ url, channelTitle, channelType, startTime, endTime, latitude, longitude, onClose }: PopupProps) {
     // @ts-ignore
     const { IVSPlayer } = window
     const [ivsPlayer, setIvsPlayer] = useState<any | null>(null)
@@ -96,7 +108,7 @@ function CustomPopup ({ url, channelTitle, startTime, endTime, latitude, longitu
     }, [ivsPlayer, IVSPlayer])
 
     useEffect(() => {
-        if (ivsPlayer == null) {
+        if (ivsPlayer == null || channelType === ChannelType.ENCODING) {
             return
         }
         ivsPlayer.attachHTMLVideoElement(video.current)
@@ -106,7 +118,7 @@ function CustomPopup ({ url, channelTitle, startTime, endTime, latitude, longitu
         ivsPlayer.play()
         console.log(ivsPlayer)
         console.log('player started')
-    }, [ivsPlayer, url])
+    }, [channelType, ivsPlayer, url])
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -130,27 +142,33 @@ function CustomPopup ({ url, channelTitle, startTime, endTime, latitude, longitu
     return (
         <Popup
             maxWidth="85%"
-            style={{ boxShadow: '0 20px 40px rgb(0 0 0 / 10%)' }}
+            style={{ boxShadow: '0 20px 40px rgb(0 0 0 / 10%)', minWidth: '60%' }}
             latitude={latitude}
             longitude={longitude}
             offset={{ bottom: [0, -40] }}
             onClose={onClose}
         >
             <ColumnFlex>
-                <div style={{ fontWeight: 'bold', fontSize: '1.3rem', padding: '0 5px 5px 0', alignSelf: 'start' }}>{channelTitle}</div>
+                <div style={{ fontWeight: 'bold', fontSize: '1.3rem', padding: '5px 0 0 0', alignSelf: 'start' }}>{channelTitle}</div>
                 {endTime == null && (
                     <div style={{ padding: '0 5px 0 0', alignSelf: 'start' }}>
-                        <div style={{ color: '#7B6767', fontWeight: '300', fontSize: '0.8rem', }}>{startTimeStr} </div>
+                        <div style={{ color: '#7B6767', fontWeight: '300', fontSize: '0.6rem', }}>{startTimeStr} </div>
                     </div>
                 )}
                 {endTime != null && (
                     <div style={{ padding: '0 5px 0 0', alignSelf: 'start', display: 'flex' }}>
-                        <div style={{ color: '#7B6767', fontWeight: '300', fontSize: '0.8rem' }}>{startTimeStr} </div>
-                        <div style={{ color: '#7B6767', fontWeight: '300', fontSize: '0.8rem', padding: '0 5px' }}>~</div>
-                        <div style={{ color: '#7B6767', fontWeight: '300', fontSize: '0.8rem' }}>{endTimeStr} </div>
+                        <div style={{ color: '#7B6767', fontWeight: '300', fontSize: '0.6rem' }}>{startTimeStr} </div>
+                        <div style={{ color: '#7B6767', fontWeight: '300', fontSize: '0.6rem', padding: '0 5px' }}>~</div>
+                        <div style={{ color: '#7B6767', fontWeight: '300', fontSize: '0.6rem' }}>{endTimeStr} </div>
                     </div>
                 )}
-                <video ref={video} style={{ width: '100%', height: '100%', marginTop: '5px', maxHeight: '30vh' }} playsInline></video>
+                {channelType !== ChannelType.ENCODING ? (
+                    <video ref={video} style={{ width: '100%', height: '100%', marginTop: '5px', maxHeight: '30vh' }} playsInline></video>
+                ) : (
+                    <div style={{ padding: '40px' }}>
+                        <SimpleLoader message="영상 처리 중" />
+                    </div>
+                )}
             </ColumnFlex>
         </Popup>
     )
@@ -173,7 +191,7 @@ function MarkerWithPopup ({ latitude, longitude, url, channelTitle, thumbnailUrl
 
     return (
         <>
-            {channelType === ChanelType.CCTV ? (
+            {channelType === ChannelType.CCTV ? (
                 <Marker
                     latitude={latitude}
                     longitude={longitude}
@@ -208,7 +226,11 @@ function MarkerWithPopup ({ latitude, longitude, url, channelTitle, thumbnailUrl
             )
             }
             {showPopup && (
-                <CustomPopup onClose={() => setShowPopup(false)} latitude={latitude} longitude={longitude} url={url} channelTitle={channelTitle}
+                <CustomPopup onClose={() => setShowPopup(false)}
+                             latitude={latitude} longitude={longitude}
+                             url={url}
+                             channelTitle={channelTitle}
+                             channelType={channelType}
                              startTime={startTime} endTime={endTime} />
             )}
         </>
@@ -216,22 +238,22 @@ function MarkerWithPopup ({ latitude, longitude, url, channelTitle, thumbnailUrl
 }
 
 const optionToString = {
-    [ChanelType.LIVE]: '라이브 방송',
-    [ChanelType.CCTV]: 'CCTV',
-    [ChanelType.VIDEO]: '저장된 영상',
-    [ChanelType.ENCODING]: '처리 중인 영상',
-    [ChanelType.TWITTER]: '트위터',
+    [ChannelType.LIVE]: '라이브 방송',
+    [ChannelType.CCTV]: 'CCTV',
+    [ChannelType.VIDEO]: '저장된 영상',
+    [ChannelType.ENCODING]: '처리 중인 영상',
+    [ChannelType.TWITTER]: '트위터',
 }
 
 function Map () {
     const [locationData, setLocationData] = useState<PlayableChannelInfo[]>([])
 
     const [viewOption, setViewOption] = useState<Record<string, boolean>>({
-        [ChanelType.LIVE]: true,
-        [ChanelType.CCTV]: true,
-        [ChanelType.VIDEO]: true,
-        [ChanelType.ENCODING]: true,
-        [ChanelType.TWITTER]: true,
+        [ChannelType.LIVE]: true,
+        [ChannelType.CCTV]: true,
+        [ChannelType.VIDEO]: true,
+        [ChannelType.ENCODING]: true,
+        [ChannelType.TWITTER]: true,
     })
     const mapRef = useRef<MapRef>(null)
 
@@ -269,7 +291,7 @@ function Map () {
     return (
         <View>
             <div style={{ display: 'flex', flexWrap: 'wrap', marginLeft: '0.5rem', padding: '10px 5px 10px 5px' }}>
-                {Object.values(ChanelType).map(type => (
+                {Object.values(ChannelType).map(type => (
                     <CheckboxField margin="5px 5px"
                                    key={type}
                                    label={optionToString[type]} name={type}
@@ -291,7 +313,7 @@ function Map () {
                     {locationData
                         .filter(l => !isNaN(Number(l.lat)) && !isNaN(Number(l.long)))
                         .filter(l => {
-                            for (const type of Object.values(ChanelType)) {
+                            for (const type of Object.values(ChannelType)) {
                                 if (!viewOption[type] && l.channelType === type) return false
                             }
                             return true
@@ -335,8 +357,9 @@ function Map () {
                         justifyContent: 'center',
                         alignItems: 'center',
                     }}>
-                        <TextField paddingRight="0px" size="small" fontSize="1rem" label="방송 이름" labelHidden={true} placeholder="방송 이름" value={title} onChange={changeTitle} />
-                        <Link to={`/broadcast?titleName=${title}`} replace={true} style={{ marginLeft: '15px', width: "40%" }}>
+                        <TextField paddingRight="0px" size="small" fontSize="1rem" label="방송 이름" labelHidden={true} placeholder="방송 이름" value={title}
+                                   onChange={changeTitle} />
+                        <Link to={`/broadcast?titleName=${title}`} replace={true} style={{ marginLeft: '15px', width: '40%' }}>
                             <Button variation="primary" width="100%">
                                 방송하기
                             </Button>

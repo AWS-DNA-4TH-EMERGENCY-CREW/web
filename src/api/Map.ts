@@ -1,7 +1,7 @@
 import { HOST } from './Config'
 import { get } from './Base'
 
-export enum ChanelType {
+export enum ChannelType {
     LIVE = 'LIVE',
     ENCODING = 'ENCODING',
     VIDEO = 'VIDEO',
@@ -18,7 +18,7 @@ export interface PlayableChannelInfo {
     startTime: string
     endTime?: string
     thumbnailUrl: string
-    channelType: ChanelType
+    channelType: ChannelType
 }
 
 export async function getChannelsAPI (): Promise<PlayableChannelInfo[]> {
