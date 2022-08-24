@@ -65,6 +65,7 @@ const Broadcast: FunctionComponent<Props> = (props) => {
 
     const [isBroadcastLoading, setBroadcastLoading] = useState(false)
     const [isBroadcasting, setIsBroadcasting] = useState(false)
+    const [isBroadcastStopping, setIsBroadcastStopping] = useState(false)
 
     useEffect(() => {
         (async () => {
@@ -156,13 +157,14 @@ const Broadcast: FunctionComponent<Props> = (props) => {
             return
         }
         client.stopBroadcast()
-        setIsBroadcasting(false)
+        setIsBroadcastStopping(true)
         stopBroadcastAPI(channelInfo.channelName)
             .then(() => {
                 navigate('/', { replace: true })
             })
             .catch((err) => {
                 console.error(err)
+                navigate('/', { replace: true })
             })
     }
 
@@ -198,16 +200,15 @@ const Broadcast: FunctionComponent<Props> = (props) => {
         <div>
             <ColumnFlex>
                 <Preview client={client} />
-                <div style={{ display: 'flex', justifyContent: 'center', marginTop: '15px' }}>
-                    <Button style={{ marginRight: '15px' }} onClick={cameraChange}>카메라 전환</Button>
+                <div style={{ display: 'flex', justifyContent: 'center', marginTop: '25px' }}>
+                    <Button style={{ marginRight: '25px' }} onClick={cameraChange}>카메라 전환</Button>
                     {isBroadcasting && (
-                        <Button onClick={stopBroadcast}>방송 중지</Button>
+                        <Button variation={isBroadcastStopping ? undefined : 'primary'} isLoading={isBroadcastStopping} disabled={isBroadcastStopping} onClick={stopBroadcast}>방송 중지 {isBroadcastStopping && '중'}</Button>
                     )}
-                    {!isBroadcasting && isBroadcastLoading && (
-                        <Button disabled>방송 시작 중</Button>
-                    )}
-                    {!isBroadcasting && !isBroadcastLoading && (
-                        <Button onClick={startBroadcast}>방송 시작</Button>
+                    {!isBroadcasting && (
+                        <Button variation={isBroadcastLoading ? undefined : 'primary'} isLoading={isBroadcastLoading} disabled={isBroadcastLoading} onClick={startBroadcast}>
+                            방송 시작 {isBroadcastLoading && '중'}
+                        </Button>
                     )}
                 </div>
             </ColumnFlex>
