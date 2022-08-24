@@ -208,7 +208,8 @@ function MarkerWithPopup ({ latitude, longitude, url, channelTitle, thumbnailUrl
             )
             }
             {showPopup && (
-                <CustomPopup onClose={() => setShowPopup(false)} latitude={latitude} longitude={longitude} url={url} channelTitle={channelTitle} startTime={startTime} endTime={endTime}/>
+                <CustomPopup onClose={() => setShowPopup(false)} latitude={latitude} longitude={longitude} url={url} channelTitle={channelTitle}
+                             startTime={startTime} endTime={endTime} />
             )}
         </>
     )
@@ -330,13 +331,14 @@ function Map () {
                     <div style={{
                         padding: '1.5rem',
                         display: 'flex',
+                        flex: '1',
                         justifyContent: 'center',
                         alignItems: 'center',
                     }}>
-                        <TextField size="small" fontSize="1rem" label="방송 이름" labelHidden={true} placeholder="방송 이름" value={title} onChange={changeTitle} />
-                        <Link to={`/broadcast?titleName=${title}`} replace={true} style={{ marginLeft: '15px' }}>
-                            <Button variation="primary">
-                                방송하러 가기
+                        <TextField paddingRight="0px" size="small" fontSize="1rem" label="방송 이름" labelHidden={true} placeholder="방송 이름" value={title} onChange={changeTitle} />
+                        <Link to={`/broadcast?titleName=${title}`} replace={true} style={{ marginLeft: '15px', width: "40%" }}>
+                            <Button variation="primary" width="100%">
+                                방송하기
                             </Button>
                         </Link>
                     </div>
