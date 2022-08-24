@@ -322,7 +322,18 @@ function Map () {
 
     return (
         <View>
-            <div style={{ display: 'flex', flexWrap: 'wrap', marginLeft: '0.5rem', padding: '10px 5px 10px 5px' }}>
+            <div style={{
+                backgroundColor: 'white',
+                position: 'fixed',
+                top: '46px',
+                left: '0px',
+                right: '0px',
+                zIndex: 100,
+                height: '80px',
+                display: 'flex',
+                flexWrap: 'wrap',
+                padding: '10px 5px 10px 5px'
+            }}>
                 {Object.values(ChannelType).map(type => (
                     <CheckboxField margin="5px 5px"
                                    key={type}
@@ -340,7 +351,7 @@ function Map () {
                         latitude: 37.495378727608546,
                         zoom: 12,
                     }}
-                    style={{ width: '100%', height: 'calc(100vh - 98px)' }}
+                    style={{ width: '100%', height: 'calc(100vh - 137px)', marginTop : '75px' }}
                 >
                     {locationData
                         .filter(l => !isNaN(Number(l.lat)) && !isNaN(Number(l.long)))
