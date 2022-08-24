@@ -1,5 +1,4 @@
-import React, { FunctionComponent, useEffect, useState } from 'react'
-import useDevices from '../../hook/UseDevices'
+import React, { FunctionComponent, useCallback, useEffect, useState } from 'react'
 import { ChannelInfo, createChannelAPI, stopBroadcastAPI } from '../../api/Broadcast'
 import Loader from '../../components/Loader'
 import { BoldText } from '../../components/Text'
@@ -12,6 +11,7 @@ import { createClient } from '../../utils/IVSClient'
 import IVSBroadcastClient from 'amazon-ivs-web-broadcast'
 import { Button } from '@aws-amplify/ui-react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import { DeviceInfo, getStream, handlePermissions } from '../../utils/Device'
 
 interface OwnProps {
 }
@@ -44,15 +44,18 @@ function SimpleError ({ message, errorMessage }: { message: string, errorMessage
 const streamConfig = IVSBroadcastClient.BASIC_LANDSCAPE
 
 const Broadcast: FunctionComponent<Props> = (props) => {
-    const [searchParams] = useSearchParams();
+    const [searchParams] = useSearchParams()
     const navigate = useNavigate()
 
-    const title = searchParams.get('titleName') ?? "제목 없음"
+    const title = searchParams.get('titleName') ?? '제목 없음'
 
     const [client, setClient] = useState<any | null>(null)
 
-    const [isDeviceLoading, getDeviceError, getDeviceStream] = useDevices()
-    const [isDeviceInit, initDevice] = useState(false)
+    const [isDeviceLoading, setDeviceLoading] = useState(false)
+    const [deviceError, setDeviceError] = useState<any | null>(null)
+
+    const [cameraId, setCameraId] = useState(0)
+    const [devices, setDevices] = useState<DeviceInfo | null>(null)
 
     const geo = useGeolocation()
 
@@ -62,6 +65,51 @@ const Broadcast: FunctionComponent<Props> = (props) => {
 
     const [isBroadcastLoading, setBroadcastLoading] = useState(false)
     const [isBroadcasting, setIsBroadcasting] = useState(false)
+
+    useEffect(() => {
+        (async () => {
+            setDeviceLoading(true)
+            try {
+                const deviceInfo = await handlePermissions()
+                setDevices(deviceInfo)
+            } catch (e) {
+                console.error('handlePermission error', e)
+                setDeviceError(e)
+                setDeviceLoading(false)
+            }
+        })()
+    }, [])
+
+    useEffect(() => {
+        if (client == null || devices == null) {
+            return
+        }
+        (async () => {
+            try {
+                const stream = await getStream(devices, cameraId, streamConfig)
+                client.addVideoInputDevice(stream.cameraStream, 'camera1', { index: 0 }) // only 'index' is required for the position parameter
+                client.addAudioInputDevice(stream.microphoneStream, 'mic1')
+            } catch (e) {
+                console.error('getStream error', e)
+                setDeviceError(e)
+            } finally {
+                setDeviceLoading(false)
+            }
+        })()
+    }, [devices, cameraId, client])
+
+    const cameraChange = useCallback(() => {
+        if (devices == null) {
+            return
+        }
+        setCameraId((prev) => {
+            if (prev + 1 >= devices.videoDevices.length) {
+                return 0
+            }
+            return prev + 1
+        })
+    }, [devices])
+
 
     useEffect(() => {
         if (geo.error != null || geo.latitude == null) {
@@ -83,23 +131,6 @@ const Broadcast: FunctionComponent<Props> = (props) => {
                 setChannelLoading(false)
             })
     }, [geo.error, geo.latitude, geo.longitude, title])
-
-    useEffect(() => {
-        if (channelInfo == null || isDeviceInit || client == null) {
-            return
-        }
-        (async () => {
-            console.log('getDeviceStream call', isDeviceInit)
-            const deviceStream = await getDeviceStream(streamConfig)
-            console.log('getDeviceStream', deviceStream)
-            if (deviceStream != null) {
-                console.log('attach stream to client')
-                client.addVideoInputDevice(deviceStream.cameraStream, 'camera1', { index: 0 }) // only 'index' is required for the position parameter
-                client.addAudioInputDevice(deviceStream.microphoneStream, 'mic1')
-                initDevice(true)
-            }
-        })()
-    }, [client, getDeviceStream, isDeviceInit, channelInfo])
 
     const startBroadcast = () => {
         if (client == null || channelInfo == null) {
@@ -159,23 +190,26 @@ const Broadcast: FunctionComponent<Props> = (props) => {
         return <SimpleLoader message="디바이스 정보를 불러오는 중" />
     }
 
-    if (getDeviceError != null) {
-        return <SimpleError message="디바이스 정보를 얻어오는데 실패했습니다" errorMessage={getDeviceError.message} />
+    if (deviceError != null) {
+        return <SimpleError message="디바이스 정보를 얻어오는데 실패했습니다" errorMessage={deviceError.message} />
     }
 
     return (
         <div>
             <ColumnFlex>
                 <Preview client={client} />
-                {isBroadcasting && (
-                    <Button style={{ marginTop: '15px' }} onClick={stopBroadcast}>방송 중지</Button>
-                )}
-                {!isBroadcasting && isBroadcastLoading && (
-                    <Button style={{ marginTop: '15px' }} disabled>방송 시작 중</Button>
-                )}
-                {!isBroadcasting && !isBroadcastLoading && (
-                    <Button style={{ marginTop: '15px' }} onClick={startBroadcast}>방송 시작</Button>
-                )}
+                <div style={{ display: 'flex', justifyContent: 'center', marginTop: '15px' }}>
+                    <Button style={{ marginRight: '15px' }} onClick={cameraChange}>카메라 전환</Button>
+                    {isBroadcasting && (
+                        <Button onClick={stopBroadcast}>방송 중지</Button>
+                    )}
+                    {!isBroadcasting && isBroadcastLoading && (
+                        <Button disabled>방송 시작 중</Button>
+                    )}
+                    {!isBroadcasting && !isBroadcastLoading && (
+                        <Button onClick={startBroadcast}>방송 시작</Button>
+                    )}
+                </div>
             </ColumnFlex>
         </div>
     )

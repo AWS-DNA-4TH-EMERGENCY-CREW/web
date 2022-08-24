@@ -11,12 +11,11 @@ export async function handlePermissions (): Promise<DeviceInfo> {
         videoDevices: devices.filter((d) => d.kind === 'videoinput'),
         audioDevices: devices.filter((d) => d.kind === 'audioinput')
     }
-
 }
 
 export type StreamInfo = { microphoneStream: MediaStream; cameraStream: MediaStream }
 
-export async function getStream (deiceInfo: DeviceInfo, streamConfig : any): Promise<StreamInfo> {
+export async function getStream (deiceInfo: DeviceInfo, cameraId: number,  streamConfig : any): Promise<StreamInfo> {
     return {
         cameraStream: await navigator.mediaDevices.getUserMedia({
             video: {
