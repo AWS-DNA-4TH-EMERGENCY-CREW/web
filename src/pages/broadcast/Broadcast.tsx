@@ -82,7 +82,7 @@ const Broadcast: FunctionComponent<Props> = (props) => {
             .finally(() => {
                 setChannelLoading(false)
             })
-    }, [geo.error, geo.latitude, geo.longitude])
+    }, [geo.error, geo.latitude, geo.longitude, title])
 
     useEffect(() => {
         if (channelInfo == null || isDeviceInit || client == null) {
