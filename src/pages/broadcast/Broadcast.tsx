@@ -118,7 +118,7 @@ const Broadcast: FunctionComponent<Props> = (props) => {
 
 
     useEffect(() => {
-        if (geo.error != null || geo.latitude == null) {
+        if (geo.error != null || geo.latitude == null || channelInfo != null) {
             return
         }
 
