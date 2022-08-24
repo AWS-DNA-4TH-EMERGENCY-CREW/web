@@ -72,6 +72,7 @@ const Broadcast: FunctionComponent<Props> = (props) => {
             setDeviceLoading(true)
             try {
                 const deviceInfo = await handlePermissions()
+                console.log(deviceInfo)
                 setDevices(deviceInfo)
             } catch (e) {
                 console.error('handlePermission error', e)
