@@ -5,7 +5,6 @@ import { MapboxEvent } from 'react-map-gl/src/types'
 import { ChannelType, getCCTVProxyUrl, getChannelsAPI, PlayableChannelInfo } from '../../api/Map'
 import ColumnFlex from '../../components/ColumnFlex'
 import randomColor from 'randomcolor'
-import { useNavigate } from 'react-router-dom'
 import cctv from '../../image/cctv.png'
 import { BoldText } from '../../components/Text'
 import Loader from '../../components/Loader'
@@ -276,8 +275,6 @@ const optionToString = {
 }
 
 function Map () {
-    const navigate = useNavigate()
-
     const [locationData, setLocationData] = useState<PlayableChannelInfo[]>([])
 
     const [viewOption, setViewOption] = useState<Record<string, boolean>>({
@@ -314,6 +311,10 @@ function Map () {
 
     const onViewOptionClick = (e: ChangeEvent<HTMLInputElement>) => {
         console.log(e.target.name)
+        console.log('changed viewOption', {
+            ...viewOption,
+            [e.target.name]: e.target.checked
+        })
         setViewOption({
             ...viewOption,
             [e.target.name]: e.target.checked
