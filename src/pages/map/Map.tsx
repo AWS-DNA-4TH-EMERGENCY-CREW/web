@@ -2,12 +2,13 @@ import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
 import { Button, CheckboxField, Flex, MapView, TextField, View } from '@aws-amplify/ui-react'
 import { MapRef, Marker, Popup } from 'react-map-gl'
 import { MapboxEvent } from 'react-map-gl/src/types'
-import { ChannelType, getCCTVProxyUrl, getChannelsAPI, PlayableChannelInfo } from '../../api/Map'
+import { ChannelType, getCCTVMp4File, getChannelsAPI, PlayableChannelInfo } from '../../api/Map'
 import ColumnFlex from '../../components/ColumnFlex'
 import randomColor from 'randomcolor'
 import cctv from '../../image/cctv.png'
 import { BoldText } from '../../components/Text'
 import Loader from '../../components/Loader'
+import { Simulate } from 'react-dom/test-utils'
 
 type LatLng = {
     lat: number
@@ -138,25 +139,30 @@ function CustomPopup ({ url, channelName, channelTitle, channelType, startTime, 
             return
         }
         ivsPlayer.attachHTMLVideoElement(video.current)
-        if (true || channelType !== ChannelType.CCTV) {
+        if (false || channelType !== ChannelType.CCTV) {
             console.log('load url', url)
             ivsPlayer.load(url)
+            ivsPlayer.setMuted(false)
+            ivsPlayer.play()
+            console.log('player started')
         } else {
             const splitResult = url.split('/')
             const fileName = splitResult[splitResult.length - 1]
             console.log({ url, fileName })
 
-            const cctvProxyUrl = getCCTVProxyUrl(channelName, fileName)
-            ivsPlayer.load(cctvProxyUrl)
-            console.log('load cctvProxyUrl', cctvProxyUrl)
+            const fn = async () => {
+                // const cctvProxyUrl = getCCTVProxyUrl(channelName, fileName)
+                // ivsPlayer.load(cctvProxyUrl)
+                // console.log('load cctvProxyUrl', cctvProxyUrl)
+                const { playback_url: playbackUrl } = await getCCTVMp4File(channelName)
+                console.log('load playbackUrl', playbackUrl)
+                ivsPlayer.load(playbackUrl)
+                ivsPlayer.setMuted(false)
+                ivsPlayer.play()
+                console.log('player started')
+            }
+            fn()
         }
-        ivsPlayer.setMuted(false)
-        // setTimeout(() => {
-        ivsPlayer.play()
-        console.log(ivsPlayer)
-        console.log('player started')
-        // }, 5000)
-
         return () => {
             ivsPlayer.pause()
             ivsPlayer.delete()

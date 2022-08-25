@@ -36,6 +36,21 @@ export function getCCTVProxyUrl (channelName: string, fileName: string) {
     return `${SEOUL_HOST}/channels/${channelName}/${fileName}`
 }
 
+export interface CCTVMp4File {
+    playback_url: string
+}
+
+export async function getCCTVMp4File (channelName: string): Promise<CCTVMp4File> {
+    console.log('call getCCTVMp4File')
+    // https://3wwdv27b0a.execute-api.ap-northeast-1.amazonaws.com/dev/channels/{channelName}/cctv
+    try {
+        const res = await get(`${HOST}/channels/${channelName}/cctv`)
+        return res.json()
+    } catch (e: any) {
+        throw new Error(e)
+    }
+}
+
 // export async function getCCTVProxyAPI (channelName: string, fileName: string): Promise<PlayableChannelInfo[]> {
 //     console.log('call getCCTVProxyAPI')
 //
