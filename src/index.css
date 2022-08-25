@@ -20,6 +20,6 @@ a {
 }
 
 .mapboxgl-popup-content, .maplibregl-popup-content{
-    border-radius: 10px 10px 0 0;
+    border-radius: 15px;
     padding: 5px 10px;
 }

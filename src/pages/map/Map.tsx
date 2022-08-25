@@ -159,7 +159,7 @@ function CustomPopup ({ url, channelName, channelTitle, channelType, startTime, 
     return (
         <Popup
             maxWidth="85%"
-            style={{ boxShadow: '0 20px 40px rgb(0 0 0 / 10%)', minWidth: '60%' }}
+            style={{ boxShadow: '0 5px 10px rgb(0 0 0 / 20%)', minWidth: '60%', borderRadius: '15px' }}
             latitude={latitude}
             longitude={longitude}
             offset={{ bottom: [0, -40] }}
