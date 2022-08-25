@@ -1,4 +1,4 @@
-import { HOST } from './Config'
+import { HOST, SEOUL_HOST } from './Config'
 import { get } from './Base'
 
 export enum ChannelType {
@@ -33,7 +33,7 @@ export async function getChannelsAPI (): Promise<PlayableChannelInfo[]> {
 }
 
 export function getCCTVProxyUrl (channelName: string, fileName: string) {
-    return `${HOST}/channels/${channelName}/${fileName}`
+    return `${SEOUL_HOST}/channels/${channelName}/${fileName}`
 }
 
 // export async function getCCTVProxyAPI (channelName: string, fileName: string): Promise<PlayableChannelInfo[]> {
