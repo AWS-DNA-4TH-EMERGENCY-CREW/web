@@ -6,7 +6,7 @@ export enum ChannelType {
     ENCODING = 'ENCODING',
     VIDEO = 'VIDEO',
     CCTV = 'CCTV',
-    TWITTER = 'TWITTER'
+    // TWITTER = 'TWITTER'
 }
 
 export interface PlayableChannelInfo {

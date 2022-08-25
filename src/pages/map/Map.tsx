@@ -87,6 +87,32 @@ function SimpleLoader ({ message }: { message: string }) {
     )
 }
 
+type TimeInfoProps = {
+    channelType: ChannelType
+    startTimeStr: string
+    endTimeStr: string | null
+}
+
+function TimeInfo ({ channelType, startTimeStr, endTimeStr }: TimeInfoProps) {
+    if (channelType === ChannelType.CCTV) {
+        return null
+    }
+    if (endTimeStr == null) {
+        return (
+            <div style={{ padding: '0 5px 0 0', alignSelf: 'start' }}>
+                <div style={{ color: '#7B6767', fontWeight: '300', fontSize: '0.6rem', }}>{startTimeStr} </div>
+            </div>
+        )
+    }
+    return (
+        <div style={{ padding: '0 5px 0 0', alignSelf: 'start', display: 'flex' }}>
+            <div style={{ color: '#7B6767', fontWeight: '300', fontSize: '0.6rem' }}>{startTimeStr} </div>
+            <div style={{ color: '#7B6767', fontWeight: '300', fontSize: '0.6rem', padding: '0 5px' }}>~</div>
+            <div style={{ color: '#7B6767', fontWeight: '300', fontSize: '0.6rem' }}>{endTimeStr} </div>
+        </div>
+    )
+}
+
 function CustomPopup ({ url, channelName, channelTitle, channelType, startTime, endTime, latitude, longitude, onClose }: PopupProps) {
     // @ts-ignore
     const { IVSPlayer } = window
@@ -159,7 +185,7 @@ function CustomPopup ({ url, channelName, channelTitle, channelType, startTime, 
     return (
         <Popup
             maxWidth="85%"
-            style={{ boxShadow: '0 5px 10px rgb(0 0 0 / 20%)', minWidth: '60%', borderRadius: '15px' }}
+            style={{ boxShadow: '0 5px 10px rgb(0 0 0 / 20%)', borderRadius: '15px' }}
             latitude={latitude}
             longitude={longitude}
             offset={{ bottom: [0, -40] }}
@@ -167,18 +193,7 @@ function CustomPopup ({ url, channelName, channelTitle, channelType, startTime, 
         >
             <ColumnFlex>
                 <div style={{ fontWeight: 'bold', fontSize: '1.3rem', padding: '5px 0 0 0', alignSelf: 'start' }}>{channelTitle}</div>
-                {endTime == null && (
-                    <div style={{ padding: '0 5px 0 0', alignSelf: 'start' }}>
-                        <div style={{ color: '#7B6767', fontWeight: '300', fontSize: '0.6rem', }}>{startTimeStr} </div>
-                    </div>
-                )}
-                {endTime != null && (
-                    <div style={{ padding: '0 5px 0 0', alignSelf: 'start', display: 'flex' }}>
-                        <div style={{ color: '#7B6767', fontWeight: '300', fontSize: '0.6rem' }}>{startTimeStr} </div>
-                        <div style={{ color: '#7B6767', fontWeight: '300', fontSize: '0.6rem', padding: '0 5px' }}>~</div>
-                        <div style={{ color: '#7B6767', fontWeight: '300', fontSize: '0.6rem' }}>{endTimeStr} </div>
-                    </div>
-                )}
+                <TimeInfo channelType={channelType} startTimeStr={startTimeStr} endTimeStr={endTimeStr} />
                 {channelType !== ChannelType.ENCODING ? (
                     <video ref={video} style={{ width: '100%', height: '100%', marginTop: '5px', maxHeight: '30vh' }} playsInline></video>
                 ) : (
@@ -271,7 +286,7 @@ const optionToString = {
     [ChannelType.CCTV]: 'CCTV',
     [ChannelType.VIDEO]: '저장된 영상',
     [ChannelType.ENCODING]: '처리 중인 영상',
-    [ChannelType.TWITTER]: '트위터',
+    // [ChannelType.TWITTER]: '트위터',
 }
 
 function Map () {
@@ -282,7 +297,7 @@ function Map () {
         [ChannelType.CCTV]: true,
         [ChannelType.VIDEO]: true,
         [ChannelType.ENCODING]: true,
-        [ChannelType.TWITTER]: true,
+        // [ChannelType.TWITTER]: true,
     })
     const mapRef = useRef<MapRef>(null)
 
@@ -352,7 +367,7 @@ function Map () {
                         latitude: 37.495378727608546,
                         zoom: 12,
                     }}
-                    style={{ width: '100%', height: 'calc(100vh - 137px)', marginTop : '75px' }}
+                    style={{ width: '100%', height: 'calc(100vh - 137px)', marginTop: '75px' }}
                 >
                     {locationData
                         .filter(l => !isNaN(Number(l.lat)) && !isNaN(Number(l.long)))
