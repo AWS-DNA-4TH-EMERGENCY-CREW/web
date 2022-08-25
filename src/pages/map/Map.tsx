@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
+import React, { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react'
 import { Button, CheckboxField, Flex, MapView, TextField, View } from '@aws-amplify/ui-react'
 import { MapRef, Marker, Popup } from 'react-map-gl'
 import { MapboxEvent } from 'react-map-gl/src/types'
@@ -8,7 +8,6 @@ import randomColor from 'randomcolor'
 import cctv from '../../image/cctv.png'
 import { BoldText } from '../../components/Text'
 import Loader from '../../components/Loader'
-import { Simulate } from 'react-dom/test-utils'
 
 type LatLng = {
     lat: number
@@ -297,6 +296,7 @@ const optionToString = {
 
 function Map () {
     const [locationData, setLocationData] = useState<PlayableChannelInfo[]>([])
+    const [filteredLocationData, setFilteredLocationData] = useState<PlayableChannelInfo[]>([])
 
     const [viewOption, setViewOption] = useState<Record<string, boolean>>({
         [ChannelType.LIVE]: true,
@@ -342,6 +342,34 @@ function Map () {
         })
     }
 
+    useEffect(() => {
+        setFilteredLocationData(locationData
+            .filter(l => !isNaN(Number(l.lat)) && !isNaN(Number(l.long)))
+            .filter(l => {
+                for (const type of Object.values(ChannelType)) {
+                    if (!viewOption[type] && l.channelType === type) return false
+                }
+                return true
+            }))
+    }, [locationData, viewOption])
+
+    const markers = useMemo(() => filteredLocationData.map(loc =>
+        <MarkerWithPopup
+            onClick={onClick}
+            channelName={loc.channelName}
+            channelTitle={loc.channelTitle}
+            key={loc.playbackUrl + loc.lat}
+            latitude={Number(loc.lat)}
+            longitude={Number(loc.long)}
+            url={loc.playbackUrl}
+            startTime={new Date(loc.startTime)}
+            endTime={(loc.endTime == null || loc.endTime === '') ? undefined : new Date(loc.endTime)}
+            thumbnailUrl={loc.thumbnailUrl === '' ? undefined : loc.thumbnailUrl}
+            channelType={loc.channelType}
+        />
+    ), [filteredLocationData]);
+
+
     return (
         <View>
             <div style={{
@@ -367,6 +395,7 @@ function Map () {
             </div>
             <Flex direction={'column'} alignItems={'center'}>
                 <MapView
+                    reuseMaps
                     ref={mapRef}
                     initialViewState={{
                         longitude: 127.06382476375357,
@@ -375,29 +404,7 @@ function Map () {
                     }}
                     style={{ width: '100%', height: 'calc(100vh - 137px)', marginTop: '75px' }}
                 >
-                    {locationData
-                        .filter(l => !isNaN(Number(l.lat)) && !isNaN(Number(l.long)))
-                        .filter(l => {
-                            for (const type of Object.values(ChannelType)) {
-                                if (!viewOption[type] && l.channelType === type) return false
-                            }
-                            return true
-                        })
-                        .map((loc) => (
-                            <MarkerWithPopup
-                                onClick={onClick}
-                                channelName={loc.channelName}
-                                channelTitle={loc.channelTitle}
-                                key={loc.playbackUrl + loc.lat}
-                                latitude={Number(loc.lat)}
-                                longitude={Number(loc.long)}
-                                url={loc.playbackUrl}
-                                startTime={new Date(loc.startTime)}
-                                endTime={(loc.endTime == null || loc.endTime === '') ? undefined : new Date(loc.endTime)}
-                                thumbnailUrl={loc.thumbnailUrl === '' ? undefined : loc.thumbnailUrl}
-                                channelType={loc.channelType}
-                            />
-                        ))}
+                    {markers}
                 </MapView>
             </Flex>
             <div style={{
