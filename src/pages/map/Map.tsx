@@ -203,19 +203,24 @@ function CustomPopup ({ url, channelName, channelTitle, channelType, startTime, 
             <ColumnFlex>
                 <div style={{ fontWeight: 'bold', fontSize: '1.3rem', padding: '5px 0 0 0', alignSelf: 'start' }}>{channelTitle}</div>
                 <TimeInfo channelType={channelType} startTimeStr={startTimeStr} endTimeStr={endTimeStr} />
-                {channelType !== ChannelType.ENCODING ? (
-                    (channelType === ChannelType.CCTV && cctvIsLoading ? (
+                <video ref={video} style={{
+                    width: '100%',
+                    height: (channelType === ChannelType.CCTV && cctvIsLoading) ? '0px' : '100%',
+                    marginTop: '5px',
+                    maxHeight: '30vh'
+                }} playsInline></video>
+                {channelType !== ChannelType.ENCODING ?
+                    (channelType === ChannelType.CCTV && cctvIsLoading && (
+                            <div style={{ padding: '40px' }}>
+                                <SimpleLoader message="CCTV 영상을 불러오는 중" />
+                            </div>
+                        )
+                    )
+                    : (
                         <div style={{ padding: '40px' }}>
-                            <SimpleLoader message="CCTV 영상을 불러오는 중" />
+                            <SimpleLoader message="영상 처리 중" />
                         </div>
-                    ) : (
-                        <video ref={video} style={{ width: '100%', height: '100%', marginTop: '5px', maxHeight: '30vh' }} playsInline></video>
-                    ))
-                ) : (
-                    <div style={{ padding: '40px' }}>
-                        <SimpleLoader message="영상 처리 중" />
-                    </div>
-                )}
+                    )}
             </ColumnFlex>
         </Popup>
     )
