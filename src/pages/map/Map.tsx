@@ -8,6 +8,7 @@ import randomColor from 'randomcolor'
 import cctv from '../../image/cctv.png'
 import { BoldText } from '../../components/Text'
 import Loader from '../../components/Loader'
+import 'mapbox-gl/dist/mapbox-gl.css'
 
 type LatLng = {
     lat: number
