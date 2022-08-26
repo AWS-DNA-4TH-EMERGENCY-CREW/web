@@ -25,6 +25,17 @@ export async function createChannelAPI (body: CreateChannelInput): Promise<Chann
     }
 }
 
+export async function startBroadcastAPI (channelName: string): Promise<void> {
+    console.log('call startBroadcastAPI', channelName)
+    try {
+        const res = await post(`${HOST}/channels/${channelName}/start`, JSON.stringify({ channelName }))
+        return res.json()
+    } catch (e: any) {
+        throw new Error(e)
+    }
+}
+
+
 export async function stopBroadcastAPI (channelName: string): Promise<void> {
     console.log('call stopBroadcastAPI', channelName)
     try {

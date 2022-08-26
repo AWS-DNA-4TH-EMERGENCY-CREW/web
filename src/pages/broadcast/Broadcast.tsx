@@ -1,5 +1,5 @@
 import React, { FunctionComponent, useCallback, useEffect, useState } from 'react'
-import { ChannelInfo, createChannelAPI, stopBroadcastAPI } from '../../api/Broadcast'
+import { ChannelInfo, createChannelAPI, startBroadcastAPI, stopBroadcastAPI } from '../../api/Broadcast'
 import Loader from '../../components/Loader'
 import { BoldText } from '../../components/Text'
 import useGeolocation from 'react-hook-geolocation'
@@ -136,7 +136,7 @@ const Broadcast: FunctionComponent<Props> = (props) => {
             .finally(() => {
                 setChannelLoading(false)
             })
-    }, [geo.error, geo.latitude, geo.longitude, title])
+    }, [channelInfo, geo.error, geo.latitude, geo.longitude, title])
 
     const startBroadcast = () => {
         if (client == null || channelInfo == null) {
@@ -147,6 +147,13 @@ const Broadcast: FunctionComponent<Props> = (props) => {
             .then(() => {
                 console.log('I am successfully broadcasting!')
                 setIsBroadcasting(true)
+                startBroadcastAPI(channelInfo.channelName)
+                    .then(() => {
+                        console.log('startBroadcast')
+                    })
+                    .catch(e => {
+                        console.error('startBroadcast API Error', e)
+                    })
             })
             .catch((error: any) => {
                 console.error('Something drastically failed while broadcasting!', error)

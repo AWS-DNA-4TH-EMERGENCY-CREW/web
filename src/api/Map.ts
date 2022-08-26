@@ -10,6 +10,7 @@ export enum ChannelType {
 }
 
 export interface PlayableChannelInfo {
+    isStarted?: boolean
     playbackUrl: string
     channelName: string
     channelTitle: string

@@ -205,19 +205,19 @@ function CustomPopup ({ url, channelName, channelTitle, channelType, startTime, 
                 <TimeInfo channelType={channelType} startTimeStr={startTimeStr} endTimeStr={endTimeStr} />
                 <video ref={video} style={{
                     width: '100%',
-                    height: (channelType === ChannelType.CCTV && cctvIsLoading) ? '0px' : '100%',
+                    height: ((channelType === ChannelType.ENCODING) || (channelType === ChannelType.CCTV && cctvIsLoading)) ? '0px' : '100%',
                     marginTop: '5px',
                     maxHeight: '30vh'
                 }} playsInline></video>
                 {channelType !== ChannelType.ENCODING ?
                     (channelType === ChannelType.CCTV && cctvIsLoading && (
-                            <div style={{ padding: '40px' }}>
+                            <div style={{ padding: '40px 75px' }}>
                                 <SimpleLoader message="CCTV 영상을 불러오는 중" />
                             </div>
                         )
                     )
                     : (
-                        <div style={{ padding: '40px' }}>
+                        <div style={{ padding: '40px 75px' }}>
                             <SimpleLoader message="영상 처리 중" />
                         </div>
                     )}
@@ -365,7 +365,9 @@ function Map () {
                     if (!viewOption[type] && l.channelType === type) return false
                 }
                 return true
-            }))
+            })
+            .filter(l => l.channelType !== ChannelType.LIVE || l.isStarted === true || l.isStarted == null)
+        )
     }, [locationData, viewOption])
 
     const markers = useMemo(() => filteredLocationData.map(loc =>
