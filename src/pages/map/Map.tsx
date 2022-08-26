@@ -121,6 +121,8 @@ function CustomPopup ({ url, channelName, channelTitle, channelType, startTime, 
     const [now, setNow] = useState(new Date())
     const [startTimeStr, setStartTimeStr] = useState<string>(toString(startTime))
     const [endTimeStr, setEndTimeStr] = useState<string | null>(null)
+    const [cctvIsLoading, setCCTVIsLoading] = useState(false)
+    const [cctvError, setCCTVError] = useState<any | null>(null)
     const video = useRef<HTMLVideoElement>(null)
 
     useEffect(() => {
@@ -150,9 +152,7 @@ function CustomPopup ({ url, channelName, channelTitle, channelType, startTime, 
             console.log({ url, fileName })
 
             const fn = async () => {
-                // const cctvProxyUrl = getCCTVProxyUrl(channelName, fileName)
-                // ivsPlayer.load(cctvProxyUrl)
-                // console.log('load cctvProxyUrl', cctvProxyUrl)
+
                 const { playback_url: playbackUrl } = await getCCTVMp4File(channelName)
                 console.log('load playbackUrl', playbackUrl)
                 ivsPlayer.load(playbackUrl)
@@ -160,7 +160,11 @@ function CustomPopup ({ url, channelName, channelTitle, channelType, startTime, 
                 ivsPlayer.play()
                 console.log('player started')
             }
-            fn()
+            setCCTVIsLoading(true)
+            fn().then(() => {
+                setCCTVIsLoading(false)
+            })
+                .catch(e => setCCTVError(e))
         }
         return () => {
             ivsPlayer.pause()
@@ -200,7 +204,13 @@ function CustomPopup ({ url, channelName, channelTitle, channelType, startTime, 
                 <div style={{ fontWeight: 'bold', fontSize: '1.3rem', padding: '5px 0 0 0', alignSelf: 'start' }}>{channelTitle}</div>
                 <TimeInfo channelType={channelType} startTimeStr={startTimeStr} endTimeStr={endTimeStr} />
                 {channelType !== ChannelType.ENCODING ? (
-                    <video ref={video} style={{ width: '100%', height: '100%', marginTop: '5px', maxHeight: '30vh' }} playsInline></video>
+                    (channelType === ChannelType.CCTV && cctvIsLoading ? (
+                        <div style={{ padding: '40px' }}>
+                            <SimpleLoader message="CCTV 영상을 불러오는 중" />
+                        </div>
+                    ) : (
+                        <video ref={video} style={{ width: '100%', height: '100%', marginTop: '5px', maxHeight: '30vh' }} playsInline></video>
+                    ))
                 ) : (
                     <div style={{ padding: '40px' }}>
                         <SimpleLoader message="영상 처리 중" />
@@ -367,7 +377,7 @@ function Map () {
             thumbnailUrl={loc.thumbnailUrl === '' ? undefined : loc.thumbnailUrl}
             channelType={loc.channelType}
         />
-    ), [filteredLocationData]);
+    ), [filteredLocationData])
 
 
     return (
